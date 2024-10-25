@@ -3,7 +3,6 @@
 from flask import Blueprint, request, jsonify
 from app.models import Maquinaria
 from app import db
-from datetime import datetime
 
 # Crear el Blueprint
 bp = Blueprint('maquinaria', __name__, url_prefix='/maquinaria')
@@ -21,12 +20,11 @@ def add_maquinaria():
     nueva_maquinaria = Maquinaria(
         nombre=data['nombre'],
         tipo=data['tipo'],
-        img=data.get('img'),  # Cambiado 'img_demostrativo' a 'img'
-        disponibilidad=bool(data['disponibilidad']),  # Asegurarse de que es booleano
-        precio=data['precio'],
-        estado=data['estado'],
+        img=data.get('img'),  # Este campo es opcional
+        precio_hora=data['precio_hora'],  # Nuevo campo
+        precio_dia=data['precio_dia'],    # Nuevo campo
         descripcion=data.get('descripcion'),
-        ultimo_mantenimiento=datetime.strptime(data['ultimo_mantenimiento'], '%Y-%m-%d %H:%M:%S')
+        estado=data.get('estado', 'disponible')  # Estado, por defecto 'disponible'
     )
     db.session.add(nueva_maquinaria)
     db.session.commit()
@@ -41,12 +39,11 @@ def get_maquinarias():
             'id_maquinaria': m.id_maquinaria,
             'nombre': m.nombre,
             'tipo': m.tipo,
-            'img': m.img,  # Cambiado 'img_demostrativo' a 'img'
-            'disponibilidad': m.disponibilidad,  # Ahora es booleano
-            'precio': float(m.precio),
-            'estado': m.estado,
+            'img': m.img,  # Este campo es opcional
+            'precio_hora': float(m.precio_hora),  # Nuevo campo
+            'precio_dia': float(m.precio_dia),    # Nuevo campo
             'descripcion': m.descripcion,
-            'ultimo_mantenimiento': m.ultimo_mantenimiento.strftime('%Y-%m-%d %H:%M:%S')
+            'estado': m.estado  # Incluir el estado
         }
         for m in maquinarias
     ]
@@ -60,12 +57,11 @@ def get_maquinaria(id):
         'id_maquinaria': maquinaria.id_maquinaria,
         'nombre': maquinaria.nombre,
         'tipo': maquinaria.tipo,
-        'img': maquinaria.img,  # Cambiado 'img_demostrativo' a 'img'
-        'disponibilidad': maquinaria.disponibilidad,  # Ahora es booleano
-        'precio': float(maquinaria.precio),
-        'estado': maquinaria.estado,
+        'img': maquinaria.img,  # Este campo es opcional
+        'precio_hora': float(maquinaria.precio_hora),  # Nuevo campo
+        'precio_dia': float(maquinaria.precio_dia),    # Nuevo campo
         'descripcion': maquinaria.descripcion,
-        'ultimo_mantenimiento': maquinaria.ultimo_mantenimiento.strftime('%Y-%m-%d %H:%M:%S')
+        'estado': maquinaria.estado  # Incluir el estado
     })
 
 # Actualizar (PUT)
@@ -76,15 +72,11 @@ def update_maquinaria(id):
 
     maquinaria.nombre = data.get('nombre', maquinaria.nombre)
     maquinaria.tipo = data.get('tipo', maquinaria.tipo)
-    maquinaria.img = data.get('img', maquinaria.img)  # Cambiado 'img_demostrativo' a 'img'
-    maquinaria.disponibilidad = bool(data.get('disponibilidad', maquinaria.disponibilidad))  # Asegurar que es booleano
-    maquinaria.precio = data.get('precio', maquinaria.precio)
-    maquinaria.estado = data.get('estado', maquinaria.estado)
+    maquinaria.img = data.get('img', maquinaria.img)  # Este campo es opcional
+    maquinaria.precio_hora = data.get('precio_hora', maquinaria.precio_hora)  # Nuevo campo
+    maquinaria.precio_dia = data.get('precio_dia', maquinaria.precio_dia)    # Nuevo campo
     maquinaria.descripcion = data.get('descripcion', maquinaria.descripcion)
-    maquinaria.ultimo_mantenimiento = datetime.strptime(
-        data.get('ultimo_mantenimiento', maquinaria.ultimo_mantenimiento.strftime('%Y-%m-%d %H:%M:%S')),
-        '%Y-%m-%d %H:%M:%S'
-    )
+    maquinaria.estado = data.get('estado', maquinaria.estado)  # Actualizar el estado
 
     db.session.commit()
     return jsonify({'message': 'Maquinaria actualizada con éxito'})
