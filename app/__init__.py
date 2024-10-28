@@ -1,5 +1,3 @@
-# app/__init__.py
-
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -9,16 +7,17 @@ def create_app():
     app = Flask(__name__)
 
     # Configuración de la base de datos
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/corvi_bd'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:26112004@localhost/corvi'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
 
     # Registrar blueprints
-    from .routes import repuestos, maquinaria, disponibilidad  # Añadir el blueprint de disponibilidad
+    from .routes import repuestos, maquinaria, disponibilidad, ruc  # Añadimos ruc
     app.register_blueprint(repuestos.bp)
     app.register_blueprint(maquinaria.bp)
-    app.register_blueprint(disponibilidad.bp)  # Registro del nuevo blueprint
+    app.register_blueprint(disponibilidad.bp)
+    app.register_blueprint(ruc.ruc_bp)  # Registramos el blueprint de ruc
 
     with app.app_context():
         db.create_all()
