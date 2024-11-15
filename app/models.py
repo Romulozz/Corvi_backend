@@ -1,4 +1,5 @@
 from app import db
+from datetime import datetime
 
 class Repuestos(db.Model):
     __tablename__ = 'repuestos'
@@ -29,7 +30,6 @@ class Maquinaria(db.Model):
     def __repr__(self):
         return f'<Maquinaria {self.nombre}>'
 
-
 class DisponibilidadCalendario(db.Model):
     __tablename__ = 'disponibilidad_calendario'
     id_disponibilidad = db.Column(db.Integer, primary_key=True)
@@ -39,3 +39,22 @@ class DisponibilidadCalendario(db.Model):
 
     def __repr__(self):
         return f'<Disponibilidad {self.id_disponibilidad} para Maquinaria {self.id_maquinaria}>'
+
+# Modelo Compra para almacenar transacciones de compra
+class Compra(db.Model):
+    __tablename__ = 'compras'
+    id = db.Column(db.Integer, primary_key=True)
+    transaction_id = db.Column(db.String(100), nullable=False)  # ID de la transacción de Mercado Pago
+    monto = db.Column(db.Float, nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    estado = db.Column(db.String(20), nullable=False)  # Estado de la compra (ej. 'approved', 'pending')
+    detalles = db.Column(db.JSON, nullable=True)  # Detalles de los productos comprados
+
+    def __init__(self, transaction_id, monto, estado, detalles):
+        self.transaction_id = transaction_id
+        self.monto = monto
+        self.estado = estado
+        self.detalles = detalles
+
+    def __repr__(self):
+        return f'<Compra {self.id} - Transaction ID: {self.transaction_id}>'

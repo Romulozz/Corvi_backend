@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+# Inicializar la instancia de SQLAlchemy
 db = SQLAlchemy()
 
 def create_app():
@@ -10,15 +11,18 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:26112004@localhost/corvi'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    # Inicializar SQLAlchemy con la aplicación
     db.init_app(app)
 
     # Registrar blueprints
-    from .routes import repuestos, maquinaria, disponibilidad, ruc  # Añadimos ruc
+    from .routes import repuestos, maquinaria, disponibilidad, ruc, pago  # Añadir "pago"
     app.register_blueprint(repuestos.bp)
     app.register_blueprint(maquinaria.bp)
     app.register_blueprint(disponibilidad.bp)
-    app.register_blueprint(ruc.ruc_bp)  # Registramos el blueprint de ruc
+    app.register_blueprint(ruc.ruc_bp)
+    app.register_blueprint(pago.pago_bp, url_prefix='/api/pago')  # Registrar el blueprint de pago
 
+    # Crear todas las tablas en la base de datos si no existen
     with app.app_context():
         db.create_all()
 
