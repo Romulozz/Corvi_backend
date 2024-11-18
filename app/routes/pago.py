@@ -6,8 +6,8 @@ from datetime import datetime
 # Configuración del Blueprint para las rutas de pago
 pago_bp = Blueprint('pago', __name__)
 
-# Inicializar el SDK de Mercado Pago con el Access Token de la empresa
-sdk = mercadopago.SDK("APP_USR-4514408865471054-111809-ab2b9595f3a5b58d1b8ad75fe3c7ca45-2105328976")
+# Inicializar el SDK de Mercado Pago con el Access Token proporcionado
+sdk = mercadopago.SDK("APP_USR-751137091009208-111815-67eba45b960de3b80ef57bd2aff55be5-2106054836")
 
 # Endpoint para crear la preferencia de pago
 @pago_bp.route('/create_preference', methods=['POST'])
@@ -35,7 +35,7 @@ def create_preference():
                 "title": item["title"],
                 "quantity": item["quantity"],
                 "unit_price": item["unit_price"],
-                "currency_id": "PEN"  # Asegura que la moneda esté configurada
+                "currency_id": "PEN"  # Configuración para la moneda Sol (PEN)
             })
 
         print("Lista de items para la preferencia:", preference_items)
@@ -43,17 +43,27 @@ def create_preference():
         # Configuración de la preferencia de pago
         preference_data = {
             "items": preference_items,
-            "back_urls": {
-                "success": "https://mercado-page.web.app/success.html",
-                "failure": "https://mercado-page.web.app/failure.html",
-                "pending": "https://mercado-page.web.app/pending.html"
+          "back_urls": {
+                "success": "http://localhost:5000/api/pago/success",
+                "failure": "http://localhost:5000/api/pago/failure",
+                "pending": "http://localhost:5000/api/pago/pending"
             },
             "auto_return": "approved",
             "additional_info": "Compra en CORVI_APP",
             "shipments": {
                 "cost": shipping_cost,
                 "mode": "not_specified"
-            }
+            },
+            # "notification_url": "http://localhost:5000/api/pago/notifications",  # Comentar esta línea si no es accesible
+            # 'payment_methods': {  # Comentar estas líneas si generan conflicto
+            #     'excluded_payment_methods': [{'id': ''}], 
+            #     'excluded_payment_types': [{'id': ''}],   
+            # },
+            # 'payer': {  # Comentar estas líneas si hay campos vacíos
+            #     'name': '',  
+            #     'surname': '',  
+            #     'email': '',  
+            # },
         }
 
         print("Datos de la preferencia antes de enviar a Mercado Pago:", preference_data)
