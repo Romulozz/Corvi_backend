@@ -1,4 +1,7 @@
 from app import db
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+
 
 class Repuestos(db.Model):
     __tablename__ = 'repuestos'
@@ -39,3 +42,37 @@ class DisponibilidadCalendario(db.Model):
 
     def __repr__(self):
         return f'<Disponibilidad {self.id_disponibilidad} para Maquinaria {self.id_maquinaria}>'
+
+# Clase Usuario
+class Usuario(db.Model):
+    __tablename__ = 'usuarios'
+    
+    # Asegúrate de que el campo id sea autoincrementable
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nombres = db.Column(db.String(100), nullable=False)
+    apellido = db.Column(db.String(100), nullable=False)
+    numero_telefonico = db.Column(db.String(15), nullable=False)
+    correo = db.Column(db.String(100), unique=True, nullable=False)
+    contraseña = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        return f'<Usuario {self.nombres} {self.apellido}>'
+    
+# Modelo Compra para almacenar transacciones de compra
+class Compra(db.Model):
+    _tablename_ = 'compras'
+    id = db.Column(db.Integer, primary_key=True)
+    transaction_id = db.Column(db.String(100), nullable=False)  # ID de la transacción de Mercado Pago
+    monto = db.Column(db.Float, nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    estado = db.Column(db.String(20), nullable=False)  # Estado de la compra (ej. 'approved', 'pending')
+    detalles = db.Column(db.JSON, nullable=True)  # Detalles de los productos comprados
+
+    def _init_(self, transaction_id, monto, estado, detalles):
+        self.transaction_id = transaction_id
+        self.monto = monto
+        self.estado = estado
+        self.detalles = detalles
+
+    def _repr_(self):
+        return f'<Compra {self.id} - Transaction ID: {self.transaction_id}>'

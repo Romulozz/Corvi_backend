@@ -79,3 +79,5 @@ def delete_repuesto(id):
     db.session.delete(repuesto)
     db.session.commit()
     return jsonify({'message': 'Repuesto eliminado con éxito'})
+
+
