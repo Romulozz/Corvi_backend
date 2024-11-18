@@ -15,12 +15,13 @@ def create_app():
     db.init_app(app)
 
     # Registrar blueprints
-    from .routes import repuestos, maquinaria, disponibilidad, ruc, pago  # Añadir "pago"
+    from .routes import repuestos, maquinaria, disponibilidad, ruc, pago, paypal  # Añadir "pago"
     app.register_blueprint(repuestos.bp)
     app.register_blueprint(maquinaria.bp)
     app.register_blueprint(disponibilidad.bp)
     app.register_blueprint(ruc.ruc_bp)
     app.register_blueprint(pago.pago_bp, url_prefix='/api/pago')  # Registrar el blueprint de pago
+    app.register_blueprint(paypal.bp, url_prefix="/api/paypal")
 
     # Crear todas las tablas en la base de datos si no existen
     with app.app_context():
