@@ -44,9 +44,9 @@ def create_preference():
         preference_data = {
             "items": preference_items,
           "back_urls": {
-                "success": "http://localhost:5000/api/pago/success",
-                "failure": "http://localhost:5000/api/pago/failure",
-                "pending": "http://localhost:5000/api/pago/pending"
+                 "success": "https://mercado-page.web.app/success.html",
+                "failure": "https://mercado-page.web.app/failure.html",
+                "pending": "https://mercado-page.web.app/pending.html"
             },
             "auto_return": "approved",
             "additional_info": "Compra en CORVI_APP",
