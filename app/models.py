@@ -1,6 +1,8 @@
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import random
+import string
 
 
 class Repuestos(db.Model):
@@ -76,3 +78,35 @@ class Compra(db.Model):
 
     def _repr_(self):
         return f'<Compra {self.id} - Transaction ID: {self.transaction_id}>'
+
+class HistorialEnvio(db.Model):
+    __tablename__ = 'historial_envios'
+    id_historial = db.Column(db.Integer, primary_key=True)
+    id_envio = db.Column(db.Integer, db.ForeignKey('envios.id_envio'), nullable=False)
+    estado = db.Column(db.String(50), nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    observaciones = db.Column(db.Text, nullable=True)
+
+    envio = db.relationship('Envio', backref='historial')
+
+    def __repr__(self):
+        return f'<Historial {self.id_historial} - Estado: {self.estado}>'
+    
+# Función para generar el código de rastreo
+def generar_codigo_rastreo():
+    """Generar un código único en formato RR123456789PE."""
+    prefix = "RR"  # Puedes cambiarlo a otro prefijo
+    suffix = "PE"  # Código de país
+    digits = ''.join(random.choices(string.digits, k=9))  # 9 dígitos aleatorios
+    return f"{prefix}{digits}{suffix}"
+
+class Envio(db.Model):
+    __tablename__ = 'envios'
+    id_envio = db.Column(db.Integer, primary_key=True)
+    codigo_rastreo = db.Column(db.String(100), unique=True, nullable=False, default=generar_codigo_rastreo)
+    estado = db.Column(db.String(50), nullable=False, default='En preparación')
+    departamento = db.Column(db.String(100), nullable=False)
+    provincia = db.Column(db.String(100), nullable=False)
+    distrito = db.Column(db.String(100), nullable=False)
+    direccion = db.Column(db.String(255), nullable=False)
+    fecha_envio = db.Column(db.DateTime, default=datetime.utcnow)
