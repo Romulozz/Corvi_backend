@@ -110,3 +110,15 @@ class Envio(db.Model):
     distrito = db.Column(db.String(100), nullable=False)
     direccion = db.Column(db.String(255), nullable=False)
     fecha_envio = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Token(db.Model):
+    __tablename__ = 'tokens'  # Nombre de la tabla
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    token = db.Column(db.String(6), nullable=False)  # Token de 6 dígitos
+    expires_at = db.Column(db.DateTime, nullable=False)  # Fecha de expiración
+
+    usuario = db.relationship('Usuario', backref=db.backref('tokens', lazy=True))
+
+    def __repr__(self):
+        return f'<Token {self.token} para Usuario {self.usuario_id}>'
