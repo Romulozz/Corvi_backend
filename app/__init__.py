@@ -8,7 +8,7 @@ def create_app():
     app = Flask(__name__)
 
     # Configuración de la base de datos usando variable de entorno
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('mysql://root:wveAFaCpNabpgjwAaWLgbLBelKuYKoHq@mysql.railway.internal:3306/railway')  # Railway genera automáticamente DATABASE_URL
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'mysql://root:wveAFaCpNabpgjwAaWLgbLBelKuYKoHq@mysql.railway.internal:3306/railway')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
