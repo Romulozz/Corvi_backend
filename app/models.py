@@ -122,3 +122,18 @@ class Token(db.Model):
 
     def __repr__(self):
         return f'<Token {self.token} para Usuario {self.usuario_id}>'
+
+class CompraMercado(db.Model):
+    _tablename_ = 'comprasMercado'
+    id = db.Column(db.Integer, primary_key=True)
+    transaction_id = db.Column(db.String(100), nullable=True)  # ID de la transacción de Mercado Pago
+    monto = db.Column(db.Float, nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    estado = db.Column(db.String(20), nullable=False)  # Estados como 'approved', 'pending', 'rejected'
+    detalles = db.Column(db.JSON, nullable=True)  # Detalles de la compra, como productos o servicios
+
+    def _init_(self, transaction_id, monto, estado, detalles):
+        self.transaction_id = transaction_id
+        self.monto = monto
+        self.estado = estado
+        self.detalles = detalles
