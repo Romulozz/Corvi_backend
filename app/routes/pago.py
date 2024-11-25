@@ -1,19 +1,17 @@
 from flask import Blueprint, request, jsonify
 import mercadopago
 from ..models import Compra, db
-from datetime import datetime
 
 # Configuración del Blueprint para las rutas de pago
 pago_bp = Blueprint('pago', __name__)
 
 # Inicializar el SDK de Mercado Pago con el Access Token proporcionado
-sdk = mercadopago.SDK("APP_USR-751137091009208-111815-67eba45b960de3b80ef57bd2aff55be5-2106054836")
+sdk = mercadopago.SDK("APP_USR-639947106348522-111815-571beda8af4ef44622f925f22a36daed-2103184247")
 
 # Endpoint para crear la preferencia de pago
 @pago_bp.route('/create_preference', methods=['POST'])
 def create_preference():
     try:
-        # Imprimir los datos recibidos para depuración
         data = request.get_json()
         print("Datos recibidos en el servidor:", data)
 
@@ -35,7 +33,7 @@ def create_preference():
                 "title": item["title"],
                 "quantity": item["quantity"],
                 "unit_price": item["unit_price"],
-                "currency_id": "PEN"  # Configuración para la moneda Sol (PEN)
+                "currency_id": "PEN"
             })
 
         print("Lista de items para la preferencia:", preference_items)
@@ -43,41 +41,30 @@ def create_preference():
         # Configuración de la preferencia de pago
         preference_data = {
             "items": preference_items,
-          "back_urls": {
-                 "success": "https://mercado-page.web.app/success.html",
-                "failure": "https://mercado-page.web.app/failure.html",
-                "pending": "https://mercado-page.web.app/pending.html"
+            "back_urls": {
+                "success": "https://corvibackend-production.up.railway.app/api/pago/success",
+                "failure": "https://corvibackend-production.up.railway.app/api/pago/failure",
+                "pending": "https://corvibackend-production.up.railway.app/api/pago/pending"
             },
+            "notification_url": "https://corvibackend-production.up.railway.app/api/pago/notificaciones",
             "auto_return": "approved",
             "additional_info": "Compra en CORVI_APP",
             "shipments": {
                 "cost": shipping_cost,
                 "mode": "not_specified"
-            },
-            # "notification_url": "http://localhost:5000/api/pago/notifications",  # Comentar esta línea si no es accesible
-            # 'payment_methods': {  # Comentar estas líneas si generan conflicto
-            #     'excluded_payment_methods': [{'id': ''}], 
-            #     'excluded_payment_types': [{'id': ''}],   
-            # },
-            # 'payer': {  # Comentar estas líneas si hay campos vacíos
-            #     'name': '',  
-            #     'surname': '',  
-            #     'email': '',  
-            # },
+            }
         }
 
         print("Datos de la preferencia antes de enviar a Mercado Pago:", preference_data)
 
-        # Crear la preferencia en Mercado Pago
         preference_response = sdk.preference().create(preference_data)
-        print("Respuesta de Mercado Pago:", preference_response)  # Imprimir la respuesta de Mercado Pago para depuración
+        print("Respuesta de Mercado Pago:", preference_response)
 
         if preference_response.get("status") != 201:
             raise Exception(f"Error al crear la preferencia: {preference_response}")
 
         preference = preference_response["response"]
 
-        # Guardar un registro preliminar en la base de datos con estado "pending"
         nueva_compra = Compra(
             transaction_id=preference["id"],
             monto=sum(item["unit_price"] * item["quantity"] for item in items) + shipping_cost,
@@ -100,3 +87,50 @@ def create_preference():
     except Exception as e:
         print("Error al crear la preferencia:", e)
         return jsonify({"error": "Error al crear la preferencia"}), 500
+
+# Endpoint para recibir notificaciones de Mercado Pago
+@pago_bp.route('/notificaciones', methods=['POST'])
+def recibir_notificaciones():
+    try:
+        data = request.json
+        print("Notificación recibida:", data)
+
+        if "type" in data and data["type"] == "payment":
+            payment_id = data.get("data", {}).get("id")
+            if not payment_id:
+                raise ValueError("El ID del pago no fue proporcionado en la notificación.")
+
+            payment_info = sdk.payment().get(payment_id)
+            print("Información del pago:", payment_info)
+
+            if payment_info["status"] == 200:
+                payment_data = payment_info["response"]
+                status = payment_data.get("status")
+                transaction_id = payment_data.get("id")
+
+                compra = Compra.query.filter_by(transaction_id=transaction_id).first()
+                if compra:
+                    compra.estado = status
+                    db.session.commit()
+                    print("Compra actualizada con éxito. Nuevo estado:", status)
+                else:
+                    print("No se encontró la compra con el ID de transacción:", transaction_id)
+
+        return jsonify({"message": "Notificación procesada con éxito"}), 200
+
+    except Exception as e:
+        print("Error al procesar la notificación:", e)
+        return jsonify({"error": "Error al procesar la notificación"}), 500
+
+# Endpoints para redirigir según el estado de la compra
+@pago_bp.route('/success', methods=['GET'])
+def success():
+    return jsonify({"status": "success", "message": "Pago aprobado"}), 200
+
+@pago_bp.route('/failure', methods=['GET'])
+def failure():
+    return jsonify({"status": "failure", "message": "Pago rechazado"}), 200
+
+@pago_bp.route('/pending', methods=['GET'])
+def pending():
+    return jsonify({"status": "pending", "message": "Pago pendiente"}), 200
