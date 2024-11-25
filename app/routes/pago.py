@@ -22,7 +22,6 @@ def create_preference():
         shipping_cost = data.get("shipping_cost", 0)
         print("Costo de envío recibido:", shipping_cost)
 
-        # Crear lista de productos para la preferencia de pago
         preference_items = []
         for item in items:
             print("Procesando item:", item)
@@ -36,9 +35,6 @@ def create_preference():
                 "currency_id": "PEN"
             })
 
-        print("Lista de items para la preferencia:", preference_items)
-
-        # Configuración de la preferencia de pago con esquemas personalizados
         preference_data = {
             "items": preference_items,
             "back_urls": {
@@ -56,7 +52,6 @@ def create_preference():
         }
 
         print("Datos de la preferencia antes de enviar a Mercado Pago:", preference_data)
-
         preference_response = sdk.preference().create(preference_data)
         print("Respuesta de Mercado Pago:", preference_response)
 
@@ -65,7 +60,6 @@ def create_preference():
 
         preference = preference_response["response"]
 
-        # Crear un registro preliminar en la base de datos
         nueva_compra = Compra(
             transaction_id=preference["id"],
             monto=sum(item["unit_price"] * item["quantity"] for item in items) + shipping_cost,
@@ -75,16 +69,11 @@ def create_preference():
         db.session.add(nueva_compra)
         db.session.commit()
 
-        print("Registro de compra guardado en la base de datos con éxito. ID de transacción:", preference["id"])
-
         return jsonify({
             "id": preference["id"],
             "init_point": preference["init_point"],
             "total": nueva_compra.monto
         })
-    except ValueError as ve:
-        print("Error de validación:", ve)
-        return jsonify({"error": str(ve)}), 400
     except Exception as e:
         print("Error al crear la preferencia:", e)
         return jsonify({"error": "Error al crear la preferencia"}), 500
