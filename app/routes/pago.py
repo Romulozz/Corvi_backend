@@ -7,7 +7,7 @@ from datetime import datetime
 pago_bp = Blueprint('pago', __name__)
 
 # Inicializar el SDK de Mercado Pago con el Access Token proporcionado
-sdk = mercadopago.SDK("TEST-338104734900772-112422-6b70164a8bd865979dd97e9eeba730ff-2105328976")
+sdk = mercadopago.SDK("APP_USR-751137091009208-111815-67eba45b960de3b80ef57bd2aff55be5-2106054836")
 
 # Endpoint para crear la preferencia de pago
 @pago_bp.route('/create_preference', methods=['POST'])
