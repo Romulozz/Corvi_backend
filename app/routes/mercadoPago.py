@@ -6,7 +6,7 @@ from app import db
 # Configuración de Mercado Pago
 MERCADO_PAGO_API = "https://api.mercadopago.com"
 MERCADO_PAGO_HEADERS = {
-    "Authorization": "Bearer YOUR_ACCESS_TOKEN"  # Reemplazar con tu token de acceso
+    "Authorization": "Bearer TEST-338104734900772-112422-6b70164a8bd865979dd97e9eeba730ff-2105328976"  # Reemplazar con tu token de acceso
 }
 
 bp = Blueprint('mercado_pago', __name__, url_prefix='/mercado_pago')
