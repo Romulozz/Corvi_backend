@@ -137,3 +137,23 @@ class CompraMercado(db.Model):
         self.monto = monto
         self.estado = estado
         self.detalles = detalles
+
+class MercadoPagoTransaction(db.Model):
+    __tablename__ = 'mercado_pago_transactions'
+    id = db.Column(db.Integer, primary_key=True)
+    transaction_id = db.Column(db.String(100), nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+    transaction_amount = db.Column(db.Float, nullable=False)
+    payment_method_id = db.Column(db.String(50), nullable=False)
+    payer_email = db.Column(db.String(100), nullable=False)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __init__(self, transaction_id, status, transaction_amount, payment_method_id, payer_email):
+        self.transaction_id = transaction_id
+        self.status = status
+        self.transaction_amount = transaction_amount
+        self.payment_method_id = payment_method_id
+        self.payer_email = payer_email
+
+    def __repr__(self):
+        return f'<MercadoPagoTransaction {self.transaction_id}>'
