@@ -6,7 +6,7 @@ from ..models import Compra, db
 pago_bp = Blueprint('pago', __name__)
 
 # Inicializar el SDK de Mercado Pago con el Access Token proporcionado
-sdk = mercadopago.SDK("APP_USR-4514408865471054-111809-ab2b9595f3a5b58d1b8ad75fe3c7ca45-2105328976")
+sdk = mercadopago.SDK("APP_USR-517448199929897-110214-ca42502e51c0e3ff0640bdd9d478d4cf-654523713")
 
 # Endpoint para crear la preferencia de pago
 @pago_bp.route('/create_preference', methods=['POST'])
