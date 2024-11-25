@@ -65,6 +65,7 @@ def create_preference():
 
         preference = preference_response["response"]
 
+        # Crear un registro preliminar en la base de datos
         nueva_compra = Compra(
             transaction_id=preference["id"],
             monto=sum(item["unit_price"] * item["quantity"] for item in items) + shipping_cost,
@@ -106,7 +107,7 @@ def recibir_notificaciones():
             if payment_info["status"] == 200:
                 payment_data = payment_info["response"]
                 status = payment_data.get("status")
-                transaction_id = payment_data.get("id")
+                transaction_id = payment_data.get("order", {}).get("id")
 
                 compra = Compra.query.filter_by(transaction_id=transaction_id).first()
                 if compra:
