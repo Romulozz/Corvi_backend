@@ -6,7 +6,7 @@ from ..models import Compra, db
 pago_bp = Blueprint('pago', __name__)
 
 # Inicializar el SDK de Mercado Pago con el Access Token proporcionado
-sdk = mercadopago.SDK("APP_USR-517448199929897-110214-ca42502e51c0e3ff0640bdd9d478d4cf-654523713")
+sdk = mercadopago.SDK("APP_USR-751137091009208-111815-67eba45b960de3b80ef57bd2aff55be5-2106054836")
 
 # Endpoint para crear la preferencia de pago
 @pago_bp.route('/create_preference', methods=['POST'])
@@ -42,9 +42,8 @@ def create_preference():
                 "failure": "corviapp://paymentFailure",
                 "pending": "corviapp://paymentPending"
             },
-            "notification_url": "https://corvibackend-production.up.railway.app/api/pago/notificaciones",
-            "auto_return": "approved",
-            "additional_info": "Compra en CORVI_APP",
+         #   "notification_url": "https://corvibackend-production.up.railway.app/api/pago/notificaciones",
+         ##  "additional_info": "Compra en CORVI_APP",
             "shipments": {
                 "cost": shipping_cost,
                 "mode": "not_specified"
