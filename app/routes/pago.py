@@ -38,13 +38,13 @@ def create_preference():
 
         print("Lista de items para la preferencia:", preference_items)
 
-        # Configuración de la preferencia de pago
+        # Configuración de la preferencia de pago con esquemas personalizados
         preference_data = {
             "items": preference_items,
             "back_urls": {
-                "success": "https://corvibackend-production.up.railway.app/api/pago/success",
-                "failure": "https://corvibackend-production.up.railway.app/api/pago/failure",
-                "pending": "https://corvibackend-production.up.railway.app/api/pago/pending"
+                "success": "corviapp://paymentSuccess",
+                "failure": "corviapp://paymentFailure",
+                "pending": "corviapp://paymentPending"
             },
             "notification_url": "https://corvibackend-production.up.railway.app/api/pago/notificaciones",
             "auto_return": "approved",
@@ -123,15 +123,3 @@ def recibir_notificaciones():
         print("Error al procesar la notificación:", e)
         return jsonify({"error": "Error al procesar la notificación"}), 500
 
-# Endpoints para redirigir según el estado de la compra
-@pago_bp.route('/success', methods=['GET'])
-def success():
-    return jsonify({"status": "success", "message": "Pago aprobado"}), 200
-
-@pago_bp.route('/failure', methods=['GET'])
-def failure():
-    return jsonify({"status": "failure", "message": "Pago rechazado"}), 200
-
-@pago_bp.route('/pending', methods=['GET'])
-def pending():
-    return jsonify({"status": "pending", "message": "Pago pendiente"}), 200
